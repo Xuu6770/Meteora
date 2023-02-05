@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Meteora-C</string>
+    <string name="notification_channel_id">Meteora_Playback</string>
+</resources>
