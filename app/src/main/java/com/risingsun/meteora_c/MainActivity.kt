@@ -99,13 +99,17 @@ class MainActivity : ComponentActivity() {
                                 }
                                 composable(route = NavigationScreen.AudioPlayScreen.route) {
                                     AudioPlayScreen(audio = audioViewModel.currentPlaying.value,
-                                        progress = audioViewModel.currentAudioProgress.value,
+                                        currentPlaybackPosition = audioViewModel.playbackPositionFormat,
+                                        sliderProgress = audioViewModel.currentAudioProgress.value,
                                         onProgressChange = { progress ->
                                             audioViewModel.currentAudioProgress.value = progress
                                             audioViewModel.newPosition = progress
                                         },
                                         onProgressChangeFinished = {
                                             audioViewModel.seekTo(audioViewModel.newPosition)
+                                        },
+                                        totalDuration = { audio ->
+                                            audio.duration.formattedToMMSS()
                                         },
                                         isAudioPlaying = audioViewModel.isAudioPlaying,
                                         onPrevious = { audioViewModel.skipToPrevious() },

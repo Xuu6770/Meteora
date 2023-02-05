@@ -9,8 +9,6 @@ import android.util.Size
 import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 class ContentResolverHelper @Inject constructor(@ApplicationContext val context: Context) {
     private val projection = arrayOf(
@@ -48,6 +46,7 @@ class ContentResolverHelper @Inject constructor(@ApplicationContext val context:
                 )
                 val duration = cursor.getLong(durationColumn)
 
+                // TODO: 寻找不需要指定 size 就能获取封面的方法
                 val albumCover = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     context.contentResolver.loadThumbnail(albumUri, Size(400, 400), null)
                 } else {
@@ -63,7 +62,7 @@ class ContentResolverHelper @Inject constructor(@ApplicationContext val context:
                     playUri = ContentUris.withAppendedId(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id
                     ),
-                    duration = duration.toDuration(DurationUnit.MILLISECONDS)
+                    duration = duration
                 )
                 audios += audio
             }

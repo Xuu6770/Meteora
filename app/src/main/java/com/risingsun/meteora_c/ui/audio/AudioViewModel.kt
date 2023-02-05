@@ -14,6 +14,7 @@ import com.risingsun.meteora_c.data.Audio
 import com.risingsun.meteora_c.exoplayer.PlayerServiceConnection
 import com.risingsun.meteora_c.exoplayer.currentPosition
 import com.risingsun.meteora_c.exoplayer.isPlaying
+import com.risingsun.meteora_c.formattedToMMSS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -29,6 +30,8 @@ class AudioViewModel @Inject constructor(
     private val isConnected = connection.isConnected
     private lateinit var rootMediaId: String
     private var currentPlaybackPosition by mutableStateOf(0L)
+    val playbackPositionFormat: String
+        get() = currentPlaybackPosition.formattedToMMSS()
     private var updatePosition = true
     private val playbackState = connection.playBackState
     val isAudioPlaying: Boolean

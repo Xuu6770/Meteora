@@ -55,7 +55,6 @@ class PlayerServiceConnection @Inject constructor(@ApplicationContext context: C
 
     private inner class MediaControllerCallBack : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            Log.d("@@@ State", state?.state.toString())
             super.onPlaybackStateChanged(state)
             _playBackState.value = state
         }

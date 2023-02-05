@@ -11,16 +11,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
 import com.risingsun.meteora_c.R
 import com.risingsun.meteora_c.data.Audio
 
 @Composable
 fun AudioPlayScreen(
     audio: Audio?,
-    progress: Float,
+    currentPlaybackPosition: String,
+    sliderProgress: Float,
     onProgressChange: (Float) -> Unit,
     onProgressChangeFinished: () -> Unit,
+    totalDuration: (Audio) -> String,
     isAudioPlaying: Boolean,
     onPrevious: () -> Unit,
     onPlayOrPause: (Audio) -> Unit,
@@ -43,20 +45,26 @@ fun AudioPlayScreen(
             Row(
                 modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "00:00", modifier = Modifier.padding(end = 5.dp))
+                Text(
+                    text = currentPlaybackPosition,
+                    modifier = Modifier.weight(0.15f),
+                    textAlign = TextAlign.Center
+                )
                 Slider(
-                    value = progress,
+                    value = sliderProgress,
                     onValueChange = onProgressChange,
                     valueRange = 0f..100f,
-                    modifier = Modifier
-                        .padding(start = 5.dp, end = 5.dp)
-                        .weight(1f),
+                    modifier = Modifier.weight(0.7f),
                     onValueChangeFinished = onProgressChangeFinished
                 )
-                Text(text = "00:00", modifier = Modifier.padding(start = 5.dp))
+                Text(
+                    text = totalDuration.invoke(audio),
+                    modifier = Modifier.weight(0.15f),
+                    textAlign = TextAlign.Center
+                )
             }
 
-            Row {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 IconButton(onClick = { onPrevious.invoke() }) {
                     Icon(
                         painter = painterResource(id = R.drawable.round_skip_previous_24),
