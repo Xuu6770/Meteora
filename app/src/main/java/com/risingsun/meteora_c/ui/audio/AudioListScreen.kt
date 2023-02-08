@@ -37,7 +37,7 @@ fun AudioListScreen(
                 trailingContent = {
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
-                            painter = painterResource(id = drawable.baseline_more_vert_24),
+                            painter = painterResource(id = drawable.round_more_vert_24),
                             contentDescription = "更多操作"
                         )
                     }

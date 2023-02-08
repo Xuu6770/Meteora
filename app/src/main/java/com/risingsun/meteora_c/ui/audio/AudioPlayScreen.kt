@@ -22,14 +22,18 @@ fun AudioPlayScreen(
     sliderProgress: Float,
     onProgressChange: (Float) -> Unit,
     onProgressChangeFinished: () -> Unit,
-    totalDuration: (Audio) -> String,
+    getTotalDuration: (Audio) -> String,
     isAudioPlaying: Boolean,
-    onPrevious: () -> Unit,
-    onPlayOrPause: (Audio) -> Unit,
-    onNext: () -> Unit
+    onSkipToPrevious: () -> Unit,
+    playOrPause: (Audio) -> Unit,
+    onSkipToNext: () -> Unit,
+    onBack: () -> Unit,
+    isShuffleModeOn: Boolean,
+    openShuffleMode: (Boolean) -> Unit
 ) {
     audio?.let { currentPlayAudio ->
         Column(modifier = Modifier.fillMaxSize()) {
+            // 音频信息
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -42,6 +46,7 @@ fun AudioPlayScreen(
                 Text(text = currentPlayAudio.artist)
             }
 
+            // 播放进度
             Row(
                 modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
@@ -58,38 +63,74 @@ fun AudioPlayScreen(
                     onValueChangeFinished = onProgressChangeFinished
                 )
                 Text(
-                    text = totalDuration.invoke(audio),
+                    text = getTotalDuration.invoke(audio),
                     modifier = Modifier.weight(0.15f),
                     textAlign = TextAlign.Center
                 )
             }
 
+            // 播放控制
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                IconButton(onClick = { onPrevious.invoke() }) {
+                IconButton(onClick = { onSkipToPrevious.invoke() }) {
                     Icon(
                         painter = painterResource(id = R.drawable.round_skip_previous_24),
                         contentDescription = "上一首"
                     )
                 }
                 if (isAudioPlaying) {
-                    IconButton(onClick = { onPlayOrPause.invoke(currentPlayAudio) }) {
+                    IconButton(onClick = { playOrPause.invoke(currentPlayAudio) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.round_pause_circle_24),
                             contentDescription = "暂停"
                         )
                     }
                 } else {
-                    IconButton(onClick = { onPlayOrPause.invoke(currentPlayAudio) }) {
+                    IconButton(onClick = { playOrPause.invoke(currentPlayAudio) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.round_play_circle_24),
                             contentDescription = "播放"
                         )
                     }
                 }
-                IconButton(onClick = { onNext.invoke() }) {
+                IconButton(onClick = { onSkipToNext.invoke() }) {
                     Icon(
                         painter = painterResource(id = R.drawable.round_skip_next_24),
                         contentDescription = "下一首"
+                    )
+                }
+            }
+
+            // 其它操作
+            Row {
+                IconButton(onClick = { onBack.invoke() }, modifier = Modifier.weight(1f)) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.round_arrow_back_24),
+                        contentDescription = "返回"
+                    )
+                }
+                if (isShuffleModeOn) {
+                    IconButton(
+                        onClick = { openShuffleMode.invoke(false) }, modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.round_shuffle_on_24),
+                            contentDescription = "随机播放"
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = { openShuffleMode.invoke(true) }, modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.round_shuffle_24),
+                            contentDescription = "随机播放"
+                        )
+                    }
+                }
+                IconButton(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.round_playlist_play_24),
+                        contentDescription = "播放列表"
                     )
                 }
             }

@@ -1,2 +1,2 @@
 # Meteora
-With Exoplayer and Jetpack Compose.
+Android local audio player with Exoplayer and Jetpack Compose.

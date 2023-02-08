@@ -1,6 +1,7 @@
 package com.risingsun.meteora_c.ui.audio
 
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,8 @@ class AudioViewModel @Inject constructor(
     private val playbackState = connection.playBackState
     val isAudioPlaying: Boolean
         get() = playbackState.value?.isPlaying == true
+    val isShuffleModeOn: Boolean
+        get() = serviceConnection.mediaControllerCompat.shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE
 
     private val subscriptionCallback = object : MediaBrowserCompat.SubscriptionCallback() {
         override fun onChildrenLoaded(
@@ -103,6 +106,11 @@ class AudioViewModel @Inject constructor(
         serviceConnection.transportControls.seekTo((currentDuration * value / 100f).toLong())
     }
 
+    fun setShuffleMode(mode: Boolean) {
+        if (mode) serviceConnection.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
+        else serviceConnection.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
+    }
+
     private fun updatePlayback() {
         viewModelScope.launch {
             val position = playbackState.value?.currentPosition ?: 0
@@ -118,7 +126,8 @@ class AudioViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        serviceConnection.unSubscribe(Meteora.Con.MEDIA_ROOT_ID,
+        serviceConnection.unSubscribe(
+            Meteora.Con.MEDIA_ROOT_ID,
             object : MediaBrowserCompat.SubscriptionCallback() {})
         updatePosition = false
     }

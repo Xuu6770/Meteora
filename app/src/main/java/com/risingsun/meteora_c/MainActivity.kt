@@ -108,15 +108,20 @@ class MainActivity : ComponentActivity() {
                                         onProgressChangeFinished = {
                                             audioViewModel.seekTo(audioViewModel.newPosition)
                                         },
-                                        totalDuration = { audio ->
+                                        getTotalDuration = { audio ->
                                             audio.duration.formattedToMMSS()
                                         },
                                         isAudioPlaying = audioViewModel.isAudioPlaying,
-                                        onPrevious = { audioViewModel.skipToPrevious() },
-                                        onPlayOrPause = { audio ->
+                                        onSkipToPrevious = { audioViewModel.skipToPrevious() },
+                                        playOrPause = { audio ->
                                             audioViewModel.playAudio(audio)
                                         },
-                                        onNext = { audioViewModel.skipToNext() })
+                                        onSkipToNext = { audioViewModel.skipToNext() },
+                                        onBack = { navController.popBackStack() },
+                                        isShuffleModeOn = audioViewModel.isShuffleModeOn,
+                                        openShuffleMode = { set ->
+                                            audioViewModel.setShuffleMode(set)
+                                        })
                                 }
                             }
                         }
