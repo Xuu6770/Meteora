@@ -1,7 +1,9 @@
 package com.risingsun.meteora_c.ui.audio
 
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.session.MediaSessionCompat.QueueItem
 import android.support.v4.media.session.PlaybackStateCompat
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +41,8 @@ class AudioViewModel @Inject constructor(
         get() = playbackState.value?.isPlaying == true
     val isShuffleModeOn: Boolean
         get() = serviceConnection.mediaControllerCompat.shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE
+    val playbackQueue: MutableList<QueueItem>?
+        get() = serviceConnection.mediaControllerCompat.queue
 
     private val subscriptionCallback = object : MediaBrowserCompat.SubscriptionCallback() {
         override fun onChildrenLoaded(
@@ -74,12 +78,14 @@ class AudioViewModel @Inject constructor(
 
     fun playAudio(audio: Audio) {
         serviceConnection.playAudio(audioList)
-        if (audio.id == currentPlaying.value?.id) {
-            if (isAudioPlaying) serviceConnection.transportControls.pause()
-            else serviceConnection.transportControls.play()
-        } else {
+        if (audio.id != currentPlaying.value?.id) {
             serviceConnection.transportControls.playFromMediaId(audio.id.toString(), null)
         }
+    }
+
+    fun playOrPause(play: Boolean) {
+        if (play) serviceConnection.transportControls.play()
+        else serviceConnection.transportControls.pause()
     }
 
     fun stopPlayback() {
@@ -107,8 +113,13 @@ class AudioViewModel @Inject constructor(
     }
 
     fun setShuffleMode(mode: Boolean) {
-        if (mode) serviceConnection.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
-        else serviceConnection.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
+        if (mode) {
+            serviceConnection.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
+            Toast.makeText(Meteora.Con.context, "随机播放", Toast.LENGTH_SHORT).show()
+        } else {
+            serviceConnection.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
+            Toast.makeText(Meteora.Con.context, "关闭随机播放", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun updatePlayback() {

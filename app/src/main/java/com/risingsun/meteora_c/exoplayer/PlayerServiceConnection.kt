@@ -6,10 +6,9 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import com.risingsun.meteora_c.Meteora
 import com.risingsun.meteora_c.MediaPlayerService
+import com.risingsun.meteora_c.Meteora
 import com.risingsun.meteora_c.data.Audio
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -79,8 +78,8 @@ class PlayerServiceConnection @Inject constructor(@ApplicationContext context: C
     val transportControls: MediaControllerCompat.TransportControls
         get() = mediaControllerCompat.transportControls
 
-    fun playAudio(audios: List<Audio>) {
-        audioList = audios
+    fun playAudio(playbackQueue: List<Audio>) {
+        audioList = playbackQueue
         mediaBrowser.sendCustomAction(Meteora.Con.START_PLAY, null, null)
     }
 

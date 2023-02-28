@@ -24,12 +24,13 @@ fun AudioPlayScreen(
     onProgressChangeFinished: () -> Unit,
     getTotalDuration: (Audio) -> String,
     isAudioPlaying: Boolean,
-    onSkipToPrevious: () -> Unit,
-    playOrPause: (Audio) -> Unit,
-    onSkipToNext: () -> Unit,
+    skipToPrevious: () -> Unit,
+    playOrPause: (Boolean) -> Unit,
+    skipToNext: () -> Unit,
     onBack: () -> Unit,
     isShuffleModeOn: Boolean,
-    openShuffleMode: (Boolean) -> Unit
+    openShuffleMode: (Boolean) -> Unit,
+    navigateToQueueScreen: () -> Unit
 ) {
     audio?.let { currentPlayAudio ->
         Column(modifier = Modifier.fillMaxSize()) {
@@ -71,28 +72,28 @@ fun AudioPlayScreen(
 
             // 播放控制
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                IconButton(onClick = { onSkipToPrevious.invoke() }) {
+                IconButton(onClick = { skipToPrevious.invoke() }) {
                     Icon(
                         painter = painterResource(id = R.drawable.round_skip_previous_24),
                         contentDescription = "上一首"
                     )
                 }
                 if (isAudioPlaying) {
-                    IconButton(onClick = { playOrPause.invoke(currentPlayAudio) }) {
+                    IconButton(onClick = { playOrPause.invoke(false) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.round_pause_circle_24),
                             contentDescription = "暂停"
                         )
                     }
                 } else {
-                    IconButton(onClick = { playOrPause.invoke(currentPlayAudio) }) {
+                    IconButton(onClick = { playOrPause.invoke(true) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.round_play_circle_24),
                             contentDescription = "播放"
                         )
                     }
                 }
-                IconButton(onClick = { onSkipToNext.invoke() }) {
+                IconButton(onClick = { skipToNext.invoke() }) {
                     Icon(
                         painter = painterResource(id = R.drawable.round_skip_next_24),
                         contentDescription = "下一首"
@@ -127,9 +128,11 @@ fun AudioPlayScreen(
                         )
                     }
                 }
-                IconButton(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
+                IconButton(
+                    onClick = { navigateToQueueScreen.invoke() }, modifier = Modifier.weight(1f)
+                ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.round_playlist_play_24),
+                        painter = painterResource(id = R.drawable.round_queue_music_24),
                         contentDescription = "播放列表"
                     )
                 }
