@@ -1,23 +1,20 @@
 package com.risingsun.meteora_c
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.risingsun.meteora_c.data.MeteoraNavigationBarItem
 import com.risingsun.meteora_c.data.NavigationScreen
+import com.risingsun.meteora_c.ui.PermissionRequestScreen
 import com.risingsun.meteora_c.ui.audio.AudioViewModel
 import com.risingsun.meteora_c.ui.audio.MeteoraScaffold
 import com.risingsun.meteora_c.ui.theme.MeteoraCTheme
@@ -26,34 +23,47 @@ import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalPermissionsApi::class)
+    @ExperimentalPermissionsApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val navigationBarItemList = listOf(MeteoraNavigationBarItem(label = {
-            Text(text = "音乐")
-        }, icon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_outline_library_music_24),
-                contentDescription = "音乐"
+        // 底部导航栏项目
+        val navigationBarItemList = listOf(
+            MeteoraNavigationBarItem(
+                label = { Text(text = "音乐") },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_outline_library_music_24),
+                        contentDescription = "音乐"
+                    )
+                },
+                selectedIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_library_music_24),
+                        contentDescription = "音乐"
+                    )
+                },
+                route = NavigationScreen.AudioListScreen.route
             )
-        }, selectedIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_baseline_library_music_24),
-                contentDescription = "音乐"
-            )
-        }, route = NavigationScreen.AudioListScreen.route))
+        )
+
+        // 声明需要申请的权限
+        val permissions = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permissions.add(android.Manifest.permission.FOREGROUND_SERVICE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) permissions.add(android.Manifest.permission.READ_MEDIA_AUDIO)
+        else permissions.add(android.Manifest.permission.READ_EXTERNAL_STORAGE)
 
         setContent {
             MeteoraCTheme {
                 val navController = rememberNavController()
-                val permissionState =
-                    rememberPermissionState(android.Manifest.permission.READ_MEDIA_AUDIO)
+                val permissionsState = rememberMultiplePermissionsState(permissions = permissions)
+
+                /*
                 val lifecycleOwner = LocalLifecycleOwner.current
                 DisposableEffect(key1 = lifecycleOwner) {
                     val observer = LifecycleEventObserver { _, event ->
                         if (event == Lifecycle.Event.ON_RESUME) {
-                            permissionState.launchPermissionRequest()
+                            permissionState.launchMultiplePermissionRequest()
                         }
                     }
                     lifecycleOwner.lifecycle.addObserver(observer)
@@ -62,11 +72,12 @@ class MainActivity : ComponentActivity() {
                         lifecycleOwner.lifecycle.removeObserver(observer)
                     }
                 }
+                */
 
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    if (permissionState.status.isGranted) {
+                    if (permissionsState.allPermissionsGranted) {
                         val audioViewModel = viewModel(AudioViewModel::class.java)
                         val audioList = audioViewModel.audioList
                         MeteoraScaffold(
@@ -90,7 +101,7 @@ class MainActivity : ComponentActivity() {
                             audioViewModel = audioViewModel
                         )
                     } else {
-
+                        PermissionRequestScreen(permissionsState = permissionsState)
                     }
                 }
             }

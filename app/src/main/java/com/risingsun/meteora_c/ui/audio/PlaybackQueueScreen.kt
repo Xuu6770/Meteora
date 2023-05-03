@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 fun PlaybackQueueScreen(queue: List<QueueItem>) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(queue) {
-            ListItem(headlineText = { Text(text = "${it.description.title}") })
+            ListItem(headlineContent = { Text(text = "${it.description.title}") })
         }
     }
 }
