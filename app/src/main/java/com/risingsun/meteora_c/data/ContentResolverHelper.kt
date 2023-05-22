@@ -2,11 +2,12 @@ package com.risingsun.meteora_c.data
 
 import android.content.ContentUris
 import android.content.Context
-import android.os.Build
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
 import android.util.Log
-import android.util.Size
 import androidx.annotation.WorkerThread
+import com.risingsun.meteora_c.Meteora
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -29,39 +30,29 @@ class ContentResolverHelper @Inject constructor(@ApplicationContext val context:
             val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
             val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-            val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
             val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
 
-            Log.i("@@@ 查找歌曲", "找到了 ${cursor.count} 首歌曲")
+            Log.i(Meteora.LOG_TAG, "找到了 ${cursor.count} 首歌曲")
 
             while (cursor.moveToNext()) {
                 val title = cursor.getString(titleColumn)
                 val artist = cursor.getString(artistColumn)
                 val album = cursor.getString(albumColumn)
-                val albumId = cursor.getLong(albumIdColumn)
                 val id = cursor.getLong(idColumn)
-                val albumUri = ContentUris.withAppendedId(
-                    MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, albumId
-                )
                 val duration = cursor.getLong(durationColumn)
-
-                // TODO: 寻找不需要指定 size 就能获取封面的方法
-                val albumCover = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    context.contentResolver.loadThumbnail(albumUri, Size(400, 400), null)
-                } else {
-                    TODO("VERSION.SDK_INT < Q")
+                val playUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
+                val retriever = MediaMetadataRetriever().apply {
+                    setDataSource(context, playUri)
                 }
+                val coverBytes = retriever.embeddedPicture
                 val audio = Audio(
                     id = id,
                     title = title,
                     artist = artist,
                     album = album,
-                    albumUri = albumUri,
-                    albumCover = albumCover,
-                    playUri = ContentUris.withAppendedId(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id
-                    ),
+                    albumCover = BitmapFactory.decodeByteArray(coverBytes, 0, coverBytes!!.size),
+                    playUri = playUri,
                     duration = duration
                 )
                 audios += audio

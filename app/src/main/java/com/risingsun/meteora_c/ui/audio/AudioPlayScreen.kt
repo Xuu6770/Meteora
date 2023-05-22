@@ -1,7 +1,14 @@
 package com.risingsun.meteora_c.ui.audio
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
@@ -9,9 +16,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.risingsun.meteora_c.R
 import com.risingsun.meteora_c.data.Audio
 
@@ -36,20 +48,31 @@ fun AudioPlayScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             // 音频信息
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .weight(0.7f)
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     bitmap = currentPlayAudio.albumCover.asImageBitmap(),
-                    contentDescription = "专辑封面"
+                    contentDescription = "专辑封面",
+                    modifier = Modifier
+                        .weight(0.9f)
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                        .clip(RoundedCornerShape(10.dp)),
+                    contentScale = ContentScale.FillBounds
                 )
-                Text(text = currentPlayAudio.title)
-                Text(text = currentPlayAudio.artist)
+                Text(text = currentPlayAudio.title, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                Text(text = currentPlayAudio.artist, modifier = Modifier.padding(top = 10.dp))
             }
 
             // 播放进度
             Row(
-                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                    .weight(0.2f)
+                    .fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = currentPlaybackPosition,
@@ -70,52 +93,21 @@ fun AudioPlayScreen(
                 )
             }
 
-            // 播放控制
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                IconButton(onClick = { skipToPrevious.invoke() }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.round_skip_previous_24),
-                        contentDescription = "上一首"
-                    )
-                }
-                if (isAudioPlaying) {
-                    IconButton(onClick = { playOrPause.invoke(false) }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.round_pause_circle_24),
-                            contentDescription = "暂停"
-                        )
-                    }
-                } else {
-                    IconButton(onClick = { playOrPause.invoke(true) }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.round_play_circle_24),
-                            contentDescription = "播放"
-                        )
-                    }
-                }
-                IconButton(onClick = { skipToNext.invoke() }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.round_skip_next_24),
-                        contentDescription = "下一首"
-                    )
-                }
-            }
-
-            // 其它操作
-            Row {
-                IconButton(onClick = { onBack.invoke() }, modifier = Modifier.weight(1f)) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.round_arrow_back_24),
-                        contentDescription = "返回"
-                    )
-                }
+            // 播放控制：随机（开关）/ 上一首 / 暂停（播放）/ 下一首 / 队列
+            Row(
+                modifier = Modifier
+                    .weight(0.2f)
+                    .fillMaxSize(),
+                horizontalArrangement = Arrangement.Center
+            ) {
                 if (isShuffleModeOn) {
                     IconButton(
                         onClick = { openShuffleMode.invoke(false) }, modifier = Modifier.weight(1f)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.round_shuffle_on_24),
-                            contentDescription = "随机播放"
+                            contentDescription = "随机播放",
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 } else {
@@ -124,16 +116,57 @@ fun AudioPlayScreen(
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.round_shuffle_24),
-                            contentDescription = "随机播放"
+                            contentDescription = "随机播放",
+                            modifier = Modifier.size(30.dp)
                         )
                     }
+                }
+                IconButton(
+                    onClick = { skipToPrevious.invoke() }, modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.round_skip_previous_24),
+                        contentDescription = "上一首",
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+                if (isAudioPlaying) {
+                    IconButton(
+                        onClick = { playOrPause.invoke(false) }, modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.round_pause_circle_24),
+                            contentDescription = "暂停",
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = { playOrPause.invoke(true) }, modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.round_play_circle_24),
+                            contentDescription = "播放",
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                }
+                IconButton(
+                    onClick = { skipToNext.invoke() }, modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.round_skip_next_24),
+                        contentDescription = "下一首",
+                        modifier = Modifier.size(40.dp)
+                    )
                 }
                 IconButton(
                     onClick = { navigateToQueueScreen.invoke() }, modifier = Modifier.weight(1f)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.round_queue_music_24),
-                        contentDescription = "播放列表"
+                        contentDescription = "播放队列",
+                        modifier = Modifier.size(30.dp)
                     )
                 }
             }

@@ -7,3 +7,9 @@
 - Accompanist
 - Hilt
 - Exoplayer
+
+## Screenshots
+
+| ![音乐列表](Screenshots/Music_list.png) | ![播放界面](Screenshots/Player.png) |
+|-------------------------------------|---------------------------------|
+| 音乐列表                                | 播放界面                            |

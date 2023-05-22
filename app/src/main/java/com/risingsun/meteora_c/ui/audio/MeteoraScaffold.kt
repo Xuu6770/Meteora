@@ -6,12 +6,14 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.risingsun.meteora_c.R
 import com.risingsun.meteora_c.data.Audio
 import com.risingsun.meteora_c.data.MeteoraNavigationBarItem
@@ -27,17 +29,22 @@ fun MeteoraScaffold(
     audioList: SnapshotStateList<Audio>,
     audioViewModel: AudioViewModel
 ) {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
     Scaffold(bottomBar = {
-        MeteoraNavigationBar(
-            navController = navController, itemList = navigationBarItemList
-        )
-    }, floatingActionButton = {
-        // TODO: 在脚手架中设置的浮动按钮会出现在除了音乐列表界面以外的界面，这是不合理的
-        FloatingActionButton(onClick = { playbackWithShuffleMode.invoke() }) {
-            Icon(
-                painter = painterResource(id = R.drawable.round_shuffle_24),
-                contentDescription = "随机播放"
+        if (currentRoute != NavigationScreen.AudioPlayScreen.route) {
+            MeteoraNavigationBar(
+                navController = navController, itemList = navigationBarItemList
             )
+        }
+    }, floatingActionButton = {
+        if (currentRoute == NavigationScreen.AudioListScreen.route) {
+            FloatingActionButton(onClick = { playbackWithShuffleMode.invoke() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.round_shuffle_24),
+                    contentDescription = "随机播放"
+                )
+            }
         }
     }) {
         NavHost(
