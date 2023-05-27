@@ -1,4 +1,4 @@
-package com.risingsun.meteora_c.ui.audio
+package com.risingsun.meteora_c.ui
 
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem

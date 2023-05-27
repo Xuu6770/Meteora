@@ -1,5 +1,6 @@
 package com.risingsun.meteora_c.ui.audio
 
+import android.support.v4.media.session.MediaSessionCompat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,11 +10,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.risingsun.meteora_c.R
 import com.risingsun.meteora_c.data.Audio
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AudioPlayScreen(
     audio: Audio?,
@@ -42,7 +51,7 @@ fun AudioPlayScreen(
     onBack: () -> Unit,
     isShuffleModeOn: Boolean,
     openShuffleMode: (Boolean) -> Unit,
-    navigateToQueueScreen: () -> Unit
+    playbackQueue: List<MediaSessionCompat.QueueItem>
 ) {
     audio?.let { currentPlayAudio ->
         Column(modifier = Modifier.fillMaxSize()) {
@@ -160,14 +169,24 @@ fun AudioPlayScreen(
                         modifier = Modifier.size(40.dp)
                     )
                 }
+                var openBottomSheet by rememberSaveable { mutableStateOf(false) }
                 IconButton(
-                    onClick = { navigateToQueueScreen.invoke() }, modifier = Modifier.weight(1f)
+                    onClick = { openBottomSheet = !openBottomSheet },
+                    modifier = Modifier.weight(1f)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.round_queue_music_24),
                         contentDescription = "播放队列",
                         modifier = Modifier.size(30.dp)
                     )
+                }
+                if (openBottomSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { openBottomSheet = false },
+                        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                    ) {
+                        PlaybackQueueScreen(queue = playbackQueue)
+                    }
                 }
             }
         }

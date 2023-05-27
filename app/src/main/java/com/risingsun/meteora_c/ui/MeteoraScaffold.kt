@@ -1,7 +1,6 @@
-package com.risingsun.meteora_c.ui.audio
+package com.risingsun.meteora_c.ui
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -19,8 +18,10 @@ import com.risingsun.meteora_c.data.Audio
 import com.risingsun.meteora_c.data.MeteoraNavigationBarItem
 import com.risingsun.meteora_c.data.NavigationScreen
 import com.risingsun.meteora_c.formattedToMMSS
+import com.risingsun.meteora_c.ui.audio.AudioListScreen
+import com.risingsun.meteora_c.ui.audio.AudioPlayScreen
+import com.risingsun.meteora_c.ui.audio.AudioViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MeteoraScaffold(
     navController: NavHostController,
@@ -31,30 +32,31 @@ fun MeteoraScaffold(
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
-    Scaffold(bottomBar = {
-        if (currentRoute != NavigationScreen.AudioPlayScreen.route) {
-            MeteoraNavigationBar(
-                navController = navController, itemList = navigationBarItemList
-            )
-        }
-    }, floatingActionButton = {
-        if (currentRoute == NavigationScreen.AudioListScreen.route) {
-            FloatingActionButton(onClick = { playbackWithShuffleMode.invoke() }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.round_shuffle_24),
-                    contentDescription = "随机播放"
+    Scaffold(
+        bottomBar = {
+            if (currentRoute != NavigationScreen.AudioPlayScreen.route) {
+                MeteoraNavigationBar(
+                    navController = navController,
+                    itemList = navigationBarItemList
                 )
             }
-        }
-    }) {
+        }, floatingActionButton = {
+            if (currentRoute == NavigationScreen.AudioListScreen.route) {
+                FloatingActionButton(onClick = { playbackWithShuffleMode.invoke() }) {
+                    Icon(
+                        painter = painterResource(
+                            id = R.drawable.round_shuffle_24
+                        ), contentDescription = "随机播放"
+                    )
+                }
+            }
+        }) {
         NavHost(
             navController = navController,
             startDestination = NavigationScreen.AudioListScreen.route,
             modifier = Modifier.padding(it)
         ) {
-            composable(
-                route = NavigationScreen.AudioListScreen.route
-            ) {
+            composable(route = NavigationScreen.AudioListScreen.route) {
                 AudioListScreen(audioList = audioList, onItemClick = { audio ->
                     audioViewModel.playAudio(audio)
                 }, onNavigateToPlayScreen = {
@@ -62,7 +64,8 @@ fun MeteoraScaffold(
                 })
             }
             composable(route = NavigationScreen.AudioPlayScreen.route) {
-                AudioPlayScreen(audio = audioViewModel.currentPlaying.value,
+                AudioPlayScreen(
+                    audio = audioViewModel.currentPlaying.value,
                     currentPlaybackPosition = audioViewModel.playbackPositionFormat,
                     sliderProgress = audioViewModel.currentAudioProgress.value,
                     onProgressChange = { progress ->
@@ -86,12 +89,8 @@ fun MeteoraScaffold(
                     openShuffleMode = { set ->
                         audioViewModel.setShuffleMode(set)
                     },
-                    navigateToQueueScreen = {
-                        navController.navigate(NavigationScreen.PlaybackQueueScreen.route)
-                    })
-            }
-            composable(route = NavigationScreen.PlaybackQueueScreen.route) {
-                PlaybackQueueScreen(audioViewModel.playbackQueue!!)
+                    playbackQueue = audioViewModel.playbackQueue!!
+                )
             }
         }
     }

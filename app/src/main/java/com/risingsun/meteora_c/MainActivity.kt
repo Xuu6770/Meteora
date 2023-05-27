@@ -16,7 +16,7 @@ import com.risingsun.meteora_c.data.MeteoraNavigationBarItem
 import com.risingsun.meteora_c.data.NavigationScreen
 import com.risingsun.meteora_c.ui.PermissionRequestScreen
 import com.risingsun.meteora_c.ui.audio.AudioViewModel
-import com.risingsun.meteora_c.ui.audio.MeteoraScaffold
+import com.risingsun.meteora_c.ui.MeteoraScaffold
 import com.risingsun.meteora_c.ui.theme.MeteoraCTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
