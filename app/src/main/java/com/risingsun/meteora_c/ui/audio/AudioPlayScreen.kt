@@ -1,6 +1,5 @@
 package com.risingsun.meteora_c.ui.audio
 
-import android.support.v4.media.session.MediaSessionCompat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,19 +45,19 @@ fun AudioPlayScreen(
     getTotalDuration: (Audio) -> String,
     isAudioPlaying: Boolean,
     skipToPrevious: () -> Unit,
-    playOrPause: (Boolean) -> Unit,
+    playOrPause: () -> Unit,
     skipToNext: () -> Unit,
     onBack: () -> Unit,
     isShuffleModeOn: Boolean,
     openShuffleMode: (Boolean) -> Unit,
-    playbackQueue: List<MediaSessionCompat.QueueItem>
+    viewModel: AudioViewModel
 ) {
     audio?.let { currentPlayAudio ->
         Column(modifier = Modifier.fillMaxSize()) {
             // 音频信息
             Column(
                 modifier = Modifier
-                    .weight(0.7f)
+                    .weight(0.8f)
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -66,14 +65,19 @@ fun AudioPlayScreen(
                     bitmap = currentPlayAudio.albumCover.asImageBitmap(),
                     contentDescription = "专辑封面",
                     modifier = Modifier
-                        .weight(0.9f)
+                        .size(350.dp)
                         .fillMaxWidth()
                         .padding(20.dp)
                         .clip(RoundedCornerShape(10.dp)),
                     contentScale = ContentScale.FillBounds
                 )
-                Text(text = currentPlayAudio.title, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text(text = currentPlayAudio.artist, modifier = Modifier.padding(top = 10.dp))
+                Text(
+                    text = currentPlayAudio.title,
+                    modifier = Modifier.padding(top = 10.dp),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(text = currentPlayAudio.artist)
             }
 
             // 播放进度
@@ -141,7 +145,7 @@ fun AudioPlayScreen(
                 }
                 if (isAudioPlaying) {
                     IconButton(
-                        onClick = { playOrPause.invoke(false) }, modifier = Modifier.weight(1f)
+                        onClick = { playOrPause.invoke() }, modifier = Modifier.weight(1f)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.round_pause_circle_24),
@@ -151,7 +155,7 @@ fun AudioPlayScreen(
                     }
                 } else {
                     IconButton(
-                        onClick = { playOrPause.invoke(true) }, modifier = Modifier.weight(1f)
+                        onClick = { playOrPause.invoke() }, modifier = Modifier.weight(1f)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.round_play_circle_24),
@@ -185,7 +189,9 @@ fun AudioPlayScreen(
                         onDismissRequest = { openBottomSheet = false },
                         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                     ) {
-                        PlaybackQueueScreen(queue = playbackQueue)
+                        PlaybackQueueScreen(queue = viewModel.playbackQueue!!) {
+                            viewModel.playAudio(it)
+                        }
                     }
                 }
             }

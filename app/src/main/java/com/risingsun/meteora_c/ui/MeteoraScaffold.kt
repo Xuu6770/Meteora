@@ -80,16 +80,14 @@ fun MeteoraScaffold(
                     },
                     isAudioPlaying = audioViewModel.isAudioPlaying,
                     skipToPrevious = { audioViewModel.skipToPrevious() },
-                    playOrPause = { play ->
-                        audioViewModel.playOrPause(play = play)
-                    },
+                    playOrPause = { audioViewModel.playOrPause() },
                     skipToNext = { audioViewModel.skipToNext() },
                     onBack = { navController.popBackStack() },
                     isShuffleModeOn = audioViewModel.isShuffleModeOn,
                     openShuffleMode = { set ->
                         audioViewModel.setShuffleMode(set)
                     },
-                    playbackQueue = audioViewModel.playbackQueue!!
+                    viewModel = audioViewModel
                 )
             }
         }

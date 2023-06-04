@@ -7,7 +7,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
@@ -26,7 +25,11 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import com.risingsun.meteora_c.exoplayer.MediaPlayerNotificationManager
 import com.risingsun.meteora_c.exoplayer.MediaSource
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -82,14 +85,14 @@ class MediaPlayerService : MediaBrowserServiceCompat() {
     override fun onGetRoot(
         clientPackageName: String, clientUid: Int, rootHints: Bundle?
     ): BrowserRoot {
-        return BrowserRoot(Meteora.Con.MEDIA_ROOT_ID, null)
+        return BrowserRoot(Meteora.MEDIA_ROOT_ID, null)
     }
 
     override fun onLoadChildren(
         parentId: String, result: Result<MutableList<MediaBrowserCompat.MediaItem>>
     ) {
         when (parentId) {
-            Meteora.Con.MEDIA_ROOT_ID -> {
+            Meteora.MEDIA_ROOT_ID -> {
                 val resultSent = mediaSource.whenReady {
                     if (it) {
                         result.sendResult(mediaSource.asMediaItem())
@@ -109,12 +112,12 @@ class MediaPlayerService : MediaBrowserServiceCompat() {
     override fun onCustomAction(action: String, extras: Bundle?, result: Result<Bundle>) {
         super.onCustomAction(action, extras, result)
         when (action) {
-            Meteora.Con.START_PLAY -> {
+            Meteora.START_PLAY -> {
                 mediaPlayerNotificationManager.showNotification(player)
             }
-            Meteora.Con.REFRESH_PLAY -> {
+            Meteora.REFRESH_PLAY -> {
                 mediaSource.refresh()
-                notifyChildrenChanged(Meteora.Con.MEDIA_ROOT_ID)
+                notifyChildrenChanged(Meteora.MEDIA_ROOT_ID)
             }
             else -> Unit
         }

@@ -5,8 +5,9 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem
 import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.Toast
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,14 +26,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AudioViewModel @Inject constructor(
-    private val repository: AudioRepository, connection: PlayerServiceConnection
+    private val repository: AudioRepository,
+    connection: PlayerServiceConnection
 ) : ViewModel() {
     var audioList = mutableStateListOf<Audio>()
     var newPosition = 0f
     val currentPlaying = connection.currentPlayingAudio
     private val isConnected = connection.isConnected
     private lateinit var rootMediaId: String
-    private var currentPlaybackPosition by mutableStateOf(0L)
+    private var currentPlaybackPosition by mutableLongStateOf(0L)
     val playbackPositionFormat: String
         get() = currentPlaybackPosition.formattedToMMSS()
     private var updatePosition = true
@@ -57,7 +59,7 @@ class AudioViewModel @Inject constructor(
     }
     private val currentDuration: Long
         get() = MediaPlayerService.currentDuration
-    val currentAudioProgress = mutableStateOf(0f)
+    val currentAudioProgress = mutableFloatStateOf(0f)
 
     init {
         viewModelScope.launch {
@@ -83,9 +85,16 @@ class AudioViewModel @Inject constructor(
         }
     }
 
-    fun playOrPause(play: Boolean) {
-        if (play) serviceConnection.transportControls.play()
-        else serviceConnection.transportControls.pause()
+    fun playAudio(mediaId: String) {
+        serviceConnection.playAudio(audioList)
+        if (mediaId != currentPlaying.value?.id.toString()) {
+            serviceConnection.transportControls.playFromMediaId(mediaId, null)
+        }
+    }
+
+    fun playOrPause() {
+        if (isAudioPlaying) serviceConnection.transportControls.pause()
+        else serviceConnection.transportControls.play()
     }
 
     fun stopPlayback() {
@@ -115,10 +124,10 @@ class AudioViewModel @Inject constructor(
     fun setShuffleMode(mode: Boolean) {
         if (mode) {
             serviceConnection.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
-            Toast.makeText(Meteora.Con.context, "随机播放", Toast.LENGTH_SHORT).show()
+            Toast.makeText(Meteora.context, "随机播放", Toast.LENGTH_SHORT).show()
         } else {
             serviceConnection.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
-            Toast.makeText(Meteora.Con.context, "关闭随机播放", Toast.LENGTH_SHORT).show()
+            Toast.makeText(Meteora.context, "关闭随机播放", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -138,7 +147,7 @@ class AudioViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         serviceConnection.unSubscribe(
-            Meteora.Con.MEDIA_ROOT_ID,
+            Meteora.MEDIA_ROOT_ID,
             object : MediaBrowserCompat.SubscriptionCallback() {})
         updatePosition = false
     }

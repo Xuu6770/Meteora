@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun PlaybackQueueScreen(queue: List<QueueItem>) {
+fun PlaybackQueueScreen(queue: List<QueueItem>, onItemClick: (String) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         Text(text = "播放队列", fontSize = 24.sp)
     }
@@ -23,7 +23,7 @@ fun PlaybackQueueScreen(queue: List<QueueItem>) {
         items(queue) {
             ListItem(
                 headlineContent = { Text(text = "${it.description.title}") },
-                modifier = Modifier.clickable { })
+                modifier = Modifier.clickable { onItemClick(it.description.mediaId!!) })
         }
     }
 }

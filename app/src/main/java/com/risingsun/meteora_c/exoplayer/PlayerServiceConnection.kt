@@ -50,7 +50,7 @@ class PlayerServiceConnection @Inject constructor(@ApplicationContext context: C
         }
     }
 
-    private var audioList = listOf<Audio>()
+    private var playbackQueue = listOf<Audio>()
 
     private inner class MediaControllerCallBack : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
@@ -61,7 +61,7 @@ class PlayerServiceConnection @Inject constructor(@ApplicationContext context: C
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             super.onMetadataChanged(metadata)
             currentPlayingAudio.value = metadata?.let { data ->
-                audioList.find {
+                playbackQueue.find {
                     it.id.toString() == data.description.mediaId
                 }
             }
@@ -78,8 +78,8 @@ class PlayerServiceConnection @Inject constructor(@ApplicationContext context: C
     val transportControls: MediaControllerCompat.TransportControls
         get() = mediaControllerCompat.transportControls
 
-    fun playAudio(playbackQueue: List<Audio>) {
-        audioList = playbackQueue
+    fun playAudio(queue: List<Audio>) {
+        this.playbackQueue = queue
         mediaBrowser.sendCustomAction(Meteora.Con.START_PLAY, null, null)
     }
 
@@ -108,6 +108,6 @@ class PlayerServiceConnection @Inject constructor(@ApplicationContext context: C
     }
 
     fun refreshMediaBrowserChildren() {
-        mediaBrowser.sendCustomAction(Meteora.Con.REFRESH_PLAY, null, null)
+        mediaBrowser.sendCustomAction(Meteora.REFRESH_PLAY, null, null)
     }
 }

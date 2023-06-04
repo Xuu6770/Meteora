@@ -5,7 +5,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -14,12 +17,11 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.risingsun.meteora_c.data.MeteoraNavigationBarItem
 import com.risingsun.meteora_c.data.NavigationScreen
+import com.risingsun.meteora_c.ui.MeteoraScaffold
 import com.risingsun.meteora_c.ui.PermissionRequestScreen
 import com.risingsun.meteora_c.ui.audio.AudioViewModel
-import com.risingsun.meteora_c.ui.MeteoraScaffold
 import com.risingsun.meteora_c.ui.theme.MeteoraCTheme
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -75,7 +77,8 @@ class MainActivity : ComponentActivity() {
                 */
 
                 Surface(
-                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     if (permissionsState.allPermissionsGranted) {
                         val audioViewModel = viewModel(AudioViewModel::class.java)
@@ -85,17 +88,8 @@ class MainActivity : ComponentActivity() {
                             navigationBarItemList = navigationBarItemList,
                             playbackWithShuffleMode = {
                                 audioViewModel.setShuffleMode(true)
-                                val audio = audioList.random()
-                                audioViewModel.playAudio(audio = audio)
+                                audioViewModel.playAudio(audio = audioList.random())
                                 navController.navigate(NavigationScreen.AudioPlayScreen.route)
-
-                                // TODO: 从音乐列表点击随机播放进入时应将当前播放的音乐置于播放队列之首
-                                audioViewModel.playbackQueue?.let {
-                                    val temp = it.find { item ->
-                                        item.description.mediaId == audio.id.toString()
-                                    }
-                                    Collections.swap(it, it.indexOf(temp), 0)
-                                }
                             },
                             audioList = audioList,
                             audioViewModel = audioViewModel
